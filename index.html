@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Room — Leandro, Rei da Helíria · EB Perafita</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+:root{
+  --gold:#C9A84C;--gold-l:#F0D080;--gold-d:#7A5A10;
+  --dark:#07050A;--dark2:#110D18;--dark3:#1C1528;
+  --cA:#E53935;--cB:#1E88E5;--cC:#43A047;--cD:#FB8C00;
+  --parch:#F5E6C8;--parch2:#DEC99A;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);font-family:'Crimson Text',serif;color:var(--parch);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 15% 40%,rgba(201,168,76,.06) 0,transparent 55%),
+    radial-gradient(ellipse at 85% 15%,rgba(139,26,26,.09) 0,transparent 50%);
+  pointer-events:none;z-index:0;}
+
+/* ── LAYOUT: sidebar ranking + main content ── */
+.layout{display:flex;min-height:100vh;position:relative;z-index:1;}
+
+/* SIDEBAR — ranking always visible */
+.sidebar{
+  width:260px;min-width:260px;
+  background:rgba(11,8,16,.97);
+  border-right:1px solid rgba(201,168,76,.15);
+  padding:20px 16px;
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sb-title{
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;
+  color:rgba(201,168,76,.5);text-transform:uppercase;
+  margin-bottom:4px;text-align:center;
+}
+.sb-school{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;
+  color:rgba(201,168,76,.3);text-align:center;margin-bottom:20px;
+}
+.sb-divider{height:1px;background:rgba(201,168,76,.12);margin-bottom:16px;}
+
+.sb-empty{
+  text-align:center;padding:24px 0;
+  font-size:14px;color:rgba(201,168,76,.3);
+  font-style:italic;line-height:1.6;
+}
+
+.lb-entry{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  margin-bottom:6px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(201,168,76,.08);
+  transition:all .3s;
+  animation:slideIn .4s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.lb-entry.new-best{
+  background:rgba(201,168,76,.1);
+  border-color:rgba(201,168,76,.35);
+}
+.lb-rank-num{
+  font-family:'Cinzel',serif;font-size:14px;font-weight:700;
+  min-width:22px;text-align:center;
+}
+.lb-rank-num.g{color:#FFD700;}
+.lb-rank-num.s{color:#C0C0C0;}
+.lb-rank-num.b{color:#CD7F32;}
+.lb-rank-num.n{color:rgba(201,168,76,.4);}
+.lb-info{flex:1;min-width:0;}
+.lb-nome{
+  font-size:14px;font-weight:600;color:var(--parch);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.lb-turma-tag{
+  display:inline-block;
+  font-family:'Cinzel',serif;font-size:10px;font-weight:700;
+  letter-spacing:.08em;padding:1px 6px;border-radius:10px;
+  border:1px solid;margin-bottom:2px;
+}
+.lb-pts{
+  font-family:'Cinzel',serif;font-size:13px;font-weight:700;
+  color:var(--gold);white-space:nowrap;
+}
+.lb-letters{font-size:11px;color:rgba(201,168,76,.4);}
+
+.sb-footer{margin-top:auto;padding-top:16px;}
+.sb-total{
+  text-align:center;font-family:'Cinzel',serif;font-size:11px;
+  color:rgba(201,168,76,.35);letter-spacing:.08em;
+}
+
+/* MAIN */
+.main{flex:1;padding:20px 20px;overflow-x:hidden;}
+.screen{display:none;}.screen.on{display:block;}
+
+/* INTRO */
+#s-intro{text-align:center;padding:36px 0;}
+.school-badge{display:inline-block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.15em;
+  color:rgba(201,168,76,.55);border:1px solid rgba(201,168,76,.2);border-radius:20px;
+  padding:5px 16px;margin-bottom:20px;text-transform:uppercase;}
+.crown{font-size:54px;display:block;margin-bottom:10px;
+  animation:bob 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 16px rgba(201,168,76,.4));}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.mtitle{font-family:'Cinzel',serif;font-size:clamp(20px,4vw,38px);font-weight:900;
+  color:var(--gold);line-height:1.15;margin-bottom:6px;}
+.msub{font-family:'Cinzel',serif;font-size:clamp(10px,2vw,14px);color:var(--gold-l);
+  opacity:.5;letter-spacing:.12em;margin-bottom:28px;}
+.intro-box{background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.15);
+  border-radius:10px;padding:18px 22px;max-width:480px;margin:0 auto 28px;
+  font-size:17px;line-height:1.7;color:var(--parch2);}
+.intro-box em{color:var(--gold-l);font-style:italic;}
+.intro-box strong{color:var(--parch);}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;}
+.badge{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.18);border-radius:6px;
+  padding:6px 12px;font-family:'Cinzel',serif;font-size:11px;color:var(--gold-l);letter-spacing:.05em;}
+
+/* TURMA */
+#s-turma{text-align:center;padding:32px 0;}
+.turma-title{font-family:'Cinzel',serif;font-size:clamp(16px,3.5vw,24px);color:var(--gold);margin-bottom:6px;}
+.turma-sub{color:var(--parch2);font-size:16px;margin-bottom:32px;opacity:.7;}
+.turma-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:400px;margin:0 auto 32px;}
+.tbn{padding:22px 14px;border:2px solid;border-radius:12px;background:transparent;
+  cursor:pointer;font-family:'Cinzel',serif;font-size:24px;font-weight:900;
+  letter-spacing:.05em;transition:all .25s;position:relative;overflow:hidden;}
+.tbn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .25s;background:currentColor;}
+.tbn:hover::before{opacity:.1;}.tbn:hover{transform:translateY(-3px);}
+.tbn span{display:block;font-family:'Crimson Text',serif;font-size:13px;font-weight:400;margin-top:3px;}
+.tA{border-color:var(--cA);color:var(--cA);}
+.tB{border-color:var(--cB);color:var(--cB);}
+.tC{border-color:var(--cC);color:var(--cC);}
+.tD{border-color:var(--cD);color:var(--cD);}
+
+/* NOME */
+#s-nome{text-align:center;padding:32px 0;}
+
+/* GAME */
+#s-game{padding:4px 0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.tpill{font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:.1em;
+  padding:4px 12px;border-radius:20px;border:1.5px solid;}
+.pA{border-color:var(--cA);color:var(--cA);}
+.pB{border-color:var(--cB);color:var(--cB);}
+.pC{border-color:var(--cC);color:var(--cC);}
+.pD{border-color:var(--cD);color:var(--cD);}
+.qctr{font-family:'Cinzel',serif;font-size:11px;color:rgba(201,168,76,.55);letter-spacing:.1em;}
+.spts{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);}
+.pbar{height:3px;background:rgba(201,168,76,.1);border-radius:2px;margin-bottom:20px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));border-radius:2px;transition:width .5s;}
+.qcard{background:linear-gradient(135deg,rgba(17,13,24,.97),rgba(28,21,40,.97));
+  border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:22px;position:relative;overflow:hidden;}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.qroom{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;
+  color:rgba(201,168,76,.45);text-transform:uppercase;margin-bottom:3px;}
+.qscene{font-family:'Cinzel',serif;font-size:11px;color:rgba(201,168,76,.35);letter-spacing:.06em;margin-bottom:16px;}
+.qtxt{font-size:18px;line-height:1.65;color:var(--parch2);margin-bottom:18px;}
+.qtxt em{color:var(--gold-l);font-style:italic;}.qtxt strong{color:var(--parch);}
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:11px 15px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.12);
+  border-radius:7px;cursor:pointer;font-size:16px;line-height:1.5;
+  color:var(--parch);text-align:left;width:100%;transition:all .18s;}
+.opt:hover:not(:disabled){background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.3);transform:translateX(3px);}
+.oltr{font-family:'Cinzel',serif;font-size:12px;font-weight:700;min-width:20px;padding-top:1px;}
+.opt.ok{background:rgba(46,125,50,.15);border-color:#4CAF50;color:#A5D6A7;}
+.opt.ko{background:rgba(198,40,40,.15);border-color:#EF5350;color:#FFCDD2;}
+.opt:disabled{cursor:default;}
+.fb{margin-top:12px;padding:12px 16px;border-radius:7px;font-size:16px;line-height:1.6;display:none;animation:fin .3s ease;}
+@keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.fb.ok{background:rgba(46,125,50,.12);border:1px solid rgba(76,175,80,.3);color:#C8E6C9;}
+.fb.ko{background:rgba(198,40,40,.12);border:1px solid rgba(239,83,80,.3);color:#FFCDD2;}
+.clue-box{display:none;margin-top:12px;background:linear-gradient(135deg,rgba(201,168,76,.07),rgba(139,105,20,.1));
+  border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:14px 18px;text-align:center;animation:fin .4s ease;}
+.clue-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:var(--gold);margin-bottom:5px;}
+.clue-chr{font-family:'Cinzel',serif;font-size:32px;font-weight:900;color:var(--gold-l);}
+.nxt{display:none;width:100%;margin-top:14px;}
+
+/* CODE */
+#s-code{text-align:center;padding:28px 0;}
+.cletters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 6px;}
+.cl{width:42px;height:52px;background:rgba(201,168,76,.07);border:1.5px solid rgba(201,168,76,.22);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold);}
+.cl.lit{background:rgba(201,168,76,.15);border-color:var(--gold);animation:pop .35s ease;}
+@keyframes pop{0%{transform:scale(.75)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+.hint{font-size:14px;font-style:italic;color:rgba(201,168,76,.5);margin:6px 0 20px;}
+.inrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+.cin{width:44px;height:50px;text-align:center;font-family:'Cinzel',serif;font-size:18px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.3);border-radius:6px;
+  color:var(--gold-l);text-transform:uppercase;outline:none;transition:border-color .2s;}
+.cin:focus{border-color:var(--gold);}
+
+/* WIN */
+#s-win{text-align:center;padding:28px 0;}
+.wcrown{font-size:52px;display:block;animation:bob 2s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(201,168,76,.5));}
+.wtitle{font-family:'Cinzel',serif;font-size:clamp(22px,5vw,40px);font-weight:900;color:var(--gold);
+  margin:12px 0 8px;animation:glow 2s ease-in-out infinite alternate;}
+@keyframes glow{from{text-shadow:0 0 20px rgba(201,168,76,.3)}to{text-shadow:0 0 50px rgba(201,168,76,.55)}}
+.wmsg{font-size:18px;line-height:1.75;color:var(--parch2);max-width:460px;margin:0 auto 20px;}
+.wsbox{display:inline-block;font-family:'Cinzel',serif;font-size:clamp(13px,2vw,18px);
+  color:var(--gold-l);padding:14px 24px;border:1px solid rgba(201,168,76,.3);border-radius:8px;margin-bottom:24px;}
+.next-player-btn{
+  display:block;width:100%;max-width:400px;margin:0 auto;
+  font-family:'Cinzel',serif;font-size:16px;font-weight:700;letter-spacing:.1em;
+  padding:16px;border:none;border-radius:8px;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold-d),var(--gold),var(--gold-d));
+  color:var(--dark);box-shadow:0 4px 18px rgba(201,168,76,.3);
+  transition:all .2s;text-transform:uppercase;margin-bottom:12px;
+}
+.next-player-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.4);}
+
+/* BUTTONS */
+.btn{display:inline-block;font-family:'Cinzel',serif;font-size:14px;font-weight:700;
+  letter-spacing:.1em;padding:12px 28px;border:none;border-radius:5px;cursor:pointer;
+  transition:all .2s;text-transform:uppercase;}
+.btn-g{background:linear-gradient(135deg,var(--gold-d),var(--gold),var(--gold-d));
+  color:var(--dark);box-shadow:0 4px 16px rgba(201,168,76,.25);}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.35);}
+.btn-o{background:transparent;color:var(--gold-l);border:1px solid rgba(201,168,76,.32);
+  font-size:12px;padding:9px 20px;}
+.btn-o:hover{background:rgba(201,168,76,.07);border-color:var(--gold);}
+.brow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+
+/* HIGHLIGHT FLASH on new entry */
+@keyframes flash{0%{background:rgba(201,168,76,.25)}100%{background:rgba(201,168,76,.1)}}
+.flash{animation:flash .8s ease;}
+@keyframes shake{0%,100%{transform:none}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* Responsive: hide sidebar on very small screens */
+@media(max-width:600px){
+  .sidebar{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══ SIDEBAR — RANKING PERMANENTE ═══ -->
+<div class="sidebar">
+  <div class="sb-title">🏆 Ranking</div>
+  <div class="sb-school">EB 2,3 de Perafita · 7.º Ano</div>
+  <div class="sb-divider"></div>
+  <div id="sb-list">
+    <div class="sb-empty">Ainda nenhum aluno jogou.<br><br>Quem será o primeiro? 👑</div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-total" id="sb-total"></div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+<!-- INTRO -->
+<div id="s-intro" class="screen on">
+  <div class="school-badge">🏫 Escola Básica 2,3 de Perafita</div>
+  <span class="crown">👑</span>
+  <h1 class="mtitle">Escape Room<br>Leandro, Rei da Helíria</h1>
+  <p class="msub">Alice Vieira · 1.º Ato · Cenas I–X · 7.º Ano</p>
+  <div class="intro-box">
+    O Rei Leandro está <em>preso num sonho</em>.<br>
+    Responde às <strong>10 perguntas</strong>, desbloqueia as letras e descobre o código secreto.<br><br>
+    O ranking no lado esquerdo atualiza em <strong>tempo real</strong>! 🏆
+  </div>
+  <div class="badges">
+    <div class="badge">⚔️ 10 Desafios</div>
+    <div class="badge">🔐 Código Secreto</div>
+    <div class="badge">🏆 Ranking ao Vivo</div>
+  </div>
+  <button class="btn btn-g" onclick="show('s-turma')">Começar</button>
+</div>
+
+<!-- TURMA -->
+<div id="s-turma" class="screen">
+  <h2 class="turma-title" style="margin-top:20px">Escolhe a tua turma</h2>
+  <p class="turma-sub">7.º Ano · Escola Básica 2,3 de Perafita</p>
+  <div class="turma-grid">
+    <button class="tbn tA" onclick="pickTurma('A')">7.º A<span>Turma A</span></button>
+    <button class="tbn tB" onclick="pickTurma('B')">7.º B<span>Turma B</span></button>
+    <button class="tbn tC" onclick="pickTurma('C')">7.º C<span>Turma C</span></button>
+    <button class="tbn tD" onclick="pickTurma('D')">7.º D<span>Turma D</span></button>
+  </div>
+  <button class="btn btn-o" onclick="show('s-intro')">← Voltar</button>
+</div>
+
+<!-- NOME -->
+<div id="s-nome" class="screen">
+  <div style="text-align:center;padding:28px 0;">
+    <span style="font-size:44px;display:block;margin-bottom:14px">✍️</span>
+    <h2 class="turma-title" id="nome-turma-lbl">7.º A</h2>
+    <p class="turma-sub">Escreve o teu nome para começar</p>
+    <div style="max-width:360px;margin:0 auto 28px;">
+      <input type="text" id="nome-input"
+        placeholder="O teu nome completo"
+        autocomplete="off"
+        style="width:100%;padding:14px 18px;font-family:'Cinzel',serif;font-size:17px;
+          background:rgba(255,255,255,.05);border:1.5px solid rgba(201,168,76,.3);
+          border-radius:8px;color:var(--gold-l);outline:none;text-align:center;
+          letter-spacing:.04em;transition:border-color .2s;"
+        onkeydown="if(event.key==='Enter')startGame()"
+        onfocus="this.style.borderColor='var(--gold)'"
+        onblur="this.style.borderColor='rgba(201,168,76,.3)'"
+      />
+      <p id="nome-err" style="color:#EF5350;font-size:13px;font-family:'Cinzel',serif;margin-top:6px;min-height:18px;"></p>
+    </div>
+    <div class="brow">
+      <button class="btn btn-g" onclick="startGame()">Jogar →</button>
+      <button class="btn btn-o" onclick="show('s-turma')">← Turma</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="tpill" id="g-pill">7.º A</div>
+      <div class="qctr" id="g-ctr">Desafio 1 / 10</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:rgba(201,168,76,.45);margin-bottom:1px" id="g-nome-top"></div>
+      <div class="spts" id="g-pts">⭐ 0 pts</div>
+    </div>
+  </div>
+  <div class="pbar"><div class="pfill" id="g-pbar" style="width:10%"></div></div>
+  <div class="qcard">
+    <div class="qroom" id="g-room"></div>
+    <div class="qscene" id="g-scene"></div>
+    <div class="qtxt" id="g-txt"></div>
+    <div class="opts" id="g-opts"></div>
+    <div class="fb" id="g-fb"></div>
+    <div class="clue-box" id="g-clue">
+      <div class="clue-lbl">🔑 LETRA DESBLOQUEADA</div>
+      <div class="clue-chr" id="g-clue-c"></div>
+    </div>
+    <button class="btn btn-g nxt" id="g-nxt" onclick="nextQ()">Próximo →</button>
+  </div>
+</div>
+
+<!-- CODE -->
+<div id="s-code" class="screen">
+  <div style="text-align:center;padding:24px 0;">
+    <span style="font-size:44px">🔐</span>
+    <h2 class="mtitle" style="font-size:clamp(18px,3.5vw,30px);margin:12px 0 5px">O Código Secreto</h2>
+    <p style="color:var(--parch2);font-size:16px;margin-bottom:3px">Juntaste todas as letras!</p>
+    <p style="color:rgba(201,168,76,.45);font-size:12px;font-family:'Cinzel',serif;letter-spacing:.08em;margin-bottom:5px">As letras das respostas certas formam a palavra-chave</p>
+    <div class="cletters" id="c-let"></div>
+    <p class="hint" id="c-hint"></p>
+    <p style="color:rgba(201,168,76,.5);font-size:13px;margin-bottom:8px;font-family:'Cinzel',serif">Descobre e escreve a palavra:</p>
+    <div class="inrow" id="c-inp"></div>
+    <div class="brow" style="margin-top:16px">
+      <button class="btn btn-g" onclick="checkCode()">Verificar</button>
+      <button class="btn btn-o" onclick="revealCode()">Revelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIN -->
+<div id="s-win" class="screen">
+  <div style="text-align:center;padding:20px 0;">
+    <span class="wcrown">🎭</span>
+    <h2 class="wtitle">Missão Cumprida!</h2>
+    <p class="wmsg" id="w-msg"></p>
+    <div class="wsbox" id="w-box"></div>
+    <br>
+    <button class="next-player-btn" onclick="nextPlayer()">
+      👤 Próximo Aluno
+    </button>
+    <button class="btn btn-o" onclick="resetAll()">🔄 Reiniciar tudo</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+const QS=[
+  {room:"Sala 1 — A Câmara do Rei",scene:"Cena I · págs. 130–135",clue:"P",
+   q:"No início da Cena I, o Rei acorda agitado. O que o perturbou durante a noite?",
+   opts:[{t:"Uma batalha que perdeu",ok:false},{t:"Um sonho que não consegue interpretar",ok:true},{t:"Uma carta de um reino inimigo",ok:false},{t:"As gargalhadas do Bobo",ok:false}],
+   fr:"Exato! O Rei acorda perturbado com um <em>sonho</em> que não compreende — é esse sonho que move toda a ação do 1.º ato.",
+   fw:"Não. O Rei acorda perturbado com um <em>sonho</em>. É essa angústia que abre a peça."},
+  {room:"Sala 2 — O Jardim das Flores",scene:"Cena II",clue:"O",
+   q:"O Rei chama as filhas «flores que são a luz dos meus olhos». O que este recurso revela?",
+   opts:[{t:"Que é frio e calculista",ok:false},{t:"Que ama as filhas mas não consegue dizê-lo diretamente",ok:true},{t:"Que tem medo das filhas",ok:false},{t:"Que não sabe falar",ok:false}],
+   fr:"Muito bem! O Rei usa metáforas porque não domina a linguagem do afeto — um homem de poder que esconde sentimentos.",
+   fw:"Não. O Rei usa a metáfora porque <em>ama</em> as filhas — mas não consegue dizê-lo diretamente."},
+  {room:"Sala 3 — A Sala dos Pretendentes",scene:"Cena III",clue:"D",
+   q:"Qual é a atitude do Bobo perante os pretendentes das filhas do Rei?",
+   opts:[{t:"Aprova-os com entusiasmo",ok:false},{t:"Desconfia e usa o humor para os criticar",ok:true},{t:"Ignora-os completamente",ok:false},{t:"Denuncia-os diretamente ao Rei",ok:false}],
+   fr:"Correto! O Bobo usa o humor e a ironia para criticar os pretendentes interesseiros.",
+   fw:"Não. O Bobo <em>desconfia</em> dos pretendentes e usa o humor para os criticar."},
+  {room:"Sala 4 — O Corredor dos Segredos",scene:"Cena IV",clue:"E",
+   q:"O Bobo faz um aparte ao público. O que é um aparte?",
+   opts:[{t:"Uma fala cantada para animar a cena",ok:false},{t:"Uma fala para o público que as outras personagens não ouvem — revela o que o Bobo pensa realmente",ok:true},{t:"Uma conversa em segredo entre duas personagens",ok:false},{t:"Uma didascália que descreve a ação",ok:false}],
+   fr:"Perfeito! O aparte é dirigido ao público enquanto as outras personagens fingem não ouvir.",
+   fw:"Não. O aparte é uma fala <em>para o público</em> que as outras personagens fingem não ouvir."},
+  {room:"Sala 5 — O Salão do Trono",scene:"Cena V",clue:"R",
+   q:"«<em>Caso o sonho se concretize</em>, o Rei perde tudo.» Que tipo de oração subordinada adverbial é a destacada?",
+   opts:[{t:"Causal — responde a «Porquê?»",ok:false},{t:"Temporal — responde a «Quando?»",ok:false},{t:"Final — responde a «Para quê?»",ok:false},{t:"Condicional — responde a «Em que condição?»",ok:true}],
+   fr:"Excelente! «<em>Caso</em>…» responde a «Em que condição?» — é uma condicional.",
+   fw:"Tenta de novo. «<em>Caso</em>…» apresenta uma condição — é condicional."},
+  {room:"Sala 6 — A Torre do Bobo",scene:"Cena VI",clue:"O",
+   q:"Qual é a diferença entre monólogo e aparte?",
+   opts:[{t:"No monólogo a personagem fala sozinha para o público; no aparte há outras personagens que fingem não ouvir",ok:true},{t:"O monólogo é mais curto",ok:false},{t:"No aparte a personagem está sempre sozinha",ok:false},{t:"São a mesma coisa",ok:false}],
+   fr:"Muito bem! No <em>monólogo</em> a personagem fala sozinha. No <em>aparte</em> há outras personagens que fingem não ouvir.",
+   fw:"Não. No <em>monólogo</em> a personagem fala sozinha; no <em>aparte</em> há outras personagens que fingem não ouvir."},
+  {room:"Sala 7 — A Câmara das Intrigas",scene:"Cena VII",clue:"S",
+   q:"«O Bobo falou baixinho <em>para que o Rei se acalmasse</em>.» Que tipo de oração subordinada adverbial é a destacada?",
+   opts:[{t:"Causal",ok:false},{t:"Temporal",ok:false},{t:"Final",ok:true},{t:"Condicional",ok:false}],
+   fr:"Correto! «<em>para que</em>…» responde a «Para quê?» — é uma oração subordinada adverbial final.",
+   fw:"Não. «<em>para que</em>…» responde a «Para quê?» — é uma oração <em>final</em>."},
+  {room:"Sala 8 — A Biblioteca Real",scene:"Cena VIII",clue:"N",
+   q:"Das três filhas do Rei, qual parece a mais genuína — cujo noivo a parece amar de verdade?",
+   opts:[{t:"Amarílis",ok:false},{t:"Hortênsia",ok:false},{t:"Violeta",ok:true},{t:"As três são iguais",ok:false}],
+   fr:"Certo! <em>Violeta</em> é a mais genuína — o seu noivo Reginaldo parece o único que a ama de verdade.",
+   fw:"Não. É <em>Violeta</em> a mais genuína."},
+  {room:"Sala 9 — A Antecâmara do Poder",scene:"Cena IX",clue:"H",
+   q:"«<em>Assim que o Rei contou o sonho</em>, o Bobo ficou espantado.» Que tipo de oração subordinada adverbial é a destacada?",
+   opts:[{t:"Temporal — responde a «Quando?»",ok:true},{t:"Causal — responde a «Porquê?»",ok:false},{t:"Condicional — responde a «Em que condição?»",ok:false},{t:"Final — responde a «Para quê?»",ok:false}],
+   fr:"Perfeito! «<em>Assim que</em>…» diz-nos <em>quando</em> — é uma oração temporal.",
+   fw:"Não. «<em>Assim que</em>…» diz-nos <em>quando</em> — é uma oração <em>temporal</em>."},
+  {room:"Sala 10 — O Desfecho · Cena X",scene:"Cena X · «O sal e… a discórdia»",clue:"O",
+   q:"Na Cena X, qual é a grande ironia do desfecho do 1.º ato?",
+   opts:[{t:"O Rei percebe que o Bobo tinha razão",ok:false},{t:"As filhas que o Rei mais amava são a causa da discórdia que o sonho anunciava",ok:true},{t:"O Bobo é expulso do palácio",ok:false},{t:"O Rei ignora o sonho e tudo corre bem",ok:false}],
+   fr:"Excelente! A ironia é que as <em>flores</em> que o Rei amava são a raiz da sua queda.",
+   fw:"Pensa bem. As <em>filhas</em> que o Rei amava — as suas «flores» — são a causa da discórdia."}
+];
+
+const SECRET="PODER";
+const SHINT="As primeiras 5 letras desbloqueadas formam a palavra-tema da obra. Qual é?";
+const CMAP={A:'var(--cA)',B:'var(--cB)',C:'var(--cC)',D:'var(--cD)'};
+const COLS=['cA','cB','cC','cD'];
+const MEDALS=['🥇','🥈','🥉','4º','5º','6º','7º','8º','9º','10º'];
+
+// All entries — persists across players in same session
+let allEntries = [];
+let st={t:'A',q:0,pts:0,ltrs:[],ans:false,nome:''};
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function pickTurma(t){
+  st.t=t;
+  document.getElementById('nome-turma-lbl').textContent='7.º '+t;
+  document.getElementById('nome-input').value='';
+  document.getElementById('nome-err').textContent='';
+  show('s-nome');
+}
+
+function startGame(){
+  const n=document.getElementById('nome-input').value.trim();
+  if(!n){document.getElementById('nome-err').textContent='Escreve o teu nome para continuar.';return;}
+  st={t:st.t,q:0,pts:0,ltrs:[],ans:false,nome:n};
+  const pill=document.getElementById('g-pill');
+  pill.textContent='7.º '+st.t;
+  pill.className='tpill p'+st.t;
+  document.getElementById('g-nome-top').textContent=st.nome;
+  show('s-game');
+  renderQ();
+}
+
+function renderQ(){
+  const q=QS[st.q];
+  st.ans=false;
+  document.getElementById('g-ctr').textContent='Desafio '+(st.q+1)+' / '+QS.length;
+  document.getElementById('g-pts').textContent='⭐ '+st.pts+' pts';
+  document.getElementById('g-pbar').style.width=((st.q/QS.length)*100+10)+'%';
+  document.getElementById('g-room').textContent=q.room;
+  document.getElementById('g-scene').textContent=q.scene;
+  document.getElementById('g-txt').innerHTML=q.q;
+  const opts=document.getElementById('g-opts');
+  opts.innerHTML='';
+  ['A','B','C','D'].forEach((l,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML='<span class="oltr" style="color:var(--'+COLS[i]+'">'+l+'</span><span>'+q.opts[i].t+'</span>';
+    b.onclick=()=>pick(i);
+    opts.appendChild(b);
+  });
+  document.getElementById('g-fb').style.display='none';
+  document.getElementById('g-fb').className='fb';
+  document.getElementById('g-clue').style.display='none';
+  document.getElementById('g-nxt').style.display='none';
+}
+
+function pick(idx){
+  if(st.ans)return;
+  st.ans=true;
+  const q=QS[st.q];
+  const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  const ok=q.opts[idx].ok;
+  const ci=q.opts.findIndex(o=>o.ok);
+  if(ok){
+    btns[idx].classList.add('ok');
+    setFB(true,q.fr);
+    st.pts+=10;
+    document.getElementById('g-pts').textContent='⭐ '+st.pts+' pts';
+    st.ltrs.push(q.clue);
+    document.getElementById('g-clue-c').textContent=q.clue;
+    document.getElementById('g-clue').style.display='block';
+  }else{
+    btns[idx].classList.add('ko');
+    btns[ci].classList.add('ok');
+    setFB(false,q.fw);
+    st.ltrs.push('_');
+  }
+  document.getElementById('g-nxt').style.display='block';
+}
+
+function setFB(ok,html){
+  const fb=document.getElementById('g-fb');
+  fb.className='fb '+(ok?'ok':'ko');
+  fb.innerHTML='<span style="margin-right:6px">'+(ok?'✅':'❌')+'</span>'+html;
+  fb.style.display='block';
+}
+
+function nextQ(){
+  st.q++;
+  if(st.q>=QS.length)goCode();
+  else renderQ();
+}
+
+function goCode(){
+  show('s-code');
+  const box=document.getElementById('c-let');
+  box.innerHTML='';
+  st.ltrs.forEach(l=>{
+    const d=document.createElement('div');
+    d.className='cl'+(l!=='_'?' lit':'');
+    d.textContent=l;
+    box.appendChild(d);
+  });
+  document.getElementById('c-hint').textContent=SHINT;
+  const inp=document.getElementById('c-inp');
+  inp.innerHTML='';
+  for(let i=0;i<SECRET.length;i++){
+    const el=document.createElement('input');
+    el.type='text';el.maxLength=1;el.className='cin';
+    el.dataset.i=i;
+    el.addEventListener('input',function(){
+      this.value=this.value.toUpperCase();
+      const nx=inp.querySelectorAll('.cin')[+this.dataset.i+1];
+      if(this.value&&nx)nx.focus();
+    });
+    el.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!this.value){
+        const pv=inp.querySelectorAll('.cin')[+this.dataset.i-1];
+        if(pv)pv.focus();
+      }
+    });
+    inp.appendChild(el);
+  }
+}
+
+function checkCode(){
+  const inputs=document.querySelectorAll('.cin');
+  let val='';inputs.forEach(i=>val+=i.value.toUpperCase());
+  if(val===SECRET){goWin();return;}
+  const row=document.getElementById('c-inp');
+  row.style.animation='none';row.offsetHeight;row.style.animation='shake .4s ease';
+  let err=document.querySelector('.errm');if(err)err.remove();
+  err=document.createElement('p');err.className='errm';
+  err.style.cssText='color:#EF5350;font-size:13px;margin-top:8px;font-family:Cinzel,serif;text-align:center';
+  err.textContent='Não é bem isso… tenta outra vez!';
+  row.parentElement.appendChild(err);
+  setTimeout(()=>err.remove(),2000);
+}
+
+function revealCode(){
+  const inputs=document.querySelectorAll('.cin');
+  SECRET.split('').forEach((l,i)=>{inputs[i].value=l;inputs[i].style.borderColor='var(--gold)';});
+  setTimeout(goWin,600);
+}
+
+function goWin(){
+  const lok=st.ltrs.filter(l=>l!=='_').length;
+  // Save to allEntries
+  allEntries.push({nome:st.nome,t:st.t,pts:st.pts,lok});
+  updateSidebar(true);
+
+  show('s-win');
+  const perf=st.pts===QS.length*10;
+  document.getElementById('w-msg').innerHTML=perf
+    ?'<strong>'+st.nome+'</strong> conseguiu a pontuação máxima! O Bobo estaria orgulhoso. A palavra secreta é <em style="color:var(--gold-l)">PODER</em>.'
+    :'<strong>'+st.nome+'</strong> desbloqueou o código secreto — <em style="color:var(--gold-l)">PODER</em>. É o que o Rei tem, o que teme perder e o que o Bobo nunca teve.';
+  document.getElementById('w-box').innerHTML=
+    '<span style="font-size:13px;opacity:.55;display:block;margin-bottom:3px">7.º '+st.t+'</span>'+
+    st.pts+' de '+(QS.length*10)+' pontos · '+lok+' de '+QS.length+' letras';
+}
+
+function nextPlayer(){
+  // Go back to turma selection for next student
+  show('s-turma');
+}
+
+function resetAll(){
+  allEntries=[];
+  updateSidebar(false);
+  show('s-intro');
+}
+
+function updateSidebar(isNew){
+  const list=document.getElementById('sb-list');
+  const total=document.getElementById('sb-total');
+
+  if(!allEntries.length){
+    list.innerHTML='<div class="sb-empty">Ainda nenhum aluno jogou.<br><br>Quem será o primeiro? 👑</div>';
+    total.textContent='';
+    return;
+  }
+
+  // Sort by pts desc, then lok desc
+  const sorted=[...allEntries].sort((a,b)=>b.pts-a.pts||b.lok-a.lok);
+  total.textContent=sorted.length+' aluno'+(sorted.length!==1?'s':'')+' jogaram';
+
+  list.innerHTML='';
+  sorted.forEach((e,i)=>{
+    const isLatest=isNew&&i===sorted.findIndex(x=>x===allEntries[allEntries.length-1]);
+    const div=document.createElement('div');
+    div.className='lb-entry'+(isLatest?' flash new-best':'');
+
+    const rankClass=i===0?'g':i===1?'s':i===2?'b':'n';
+    div.innerHTML=
+      '<div class="lb-rank-num '+rankClass+'">'+(MEDALS[i]||i+1)+'</div>'+
+      '<div class="lb-info">'+
+        '<div class="lb-turma-tag" style="border-color:'+CMAP[e.t]+';color:'+CMAP[e.t]+'">7.º '+e.t+'</div>'+
+        '<div class="lb-nome">'+e.nome+'</div>'+
+        '<div class="lb-letters">'+e.lok+'/'+QS.length+' letras</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="lb-pts">'+e.pts+'</div>'+
+        '<div style="font-size:10px;color:rgba(201,168,76,.35);font-family:Cinzel,serif">pts</div>'+
+      '</div>';
+    list.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
