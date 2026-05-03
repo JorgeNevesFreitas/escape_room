@@ -237,6 +237,8 @@ body::before{content:'';position:fixed;inset:0;
   .sidebar{display:none;}
 }
 </style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -380,6 +382,24 @@ body::before{content:'';position:fixed;inset:0;
 </div><!-- /layout -->
 
 <script>
+const FB_CONFIG = {
+  apiKey: "AIzaSyCbZjtIR7kn1lBGgWtUtQRYK8DXxOy1uZY",
+  authDomain: "escapeperafita.firebaseapp.com",
+  databaseURL: "https://escapeperafita-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "escapeperafita",
+  storageBucket: "escapeperafita.firebasestorage.app",
+  messagingSenderId: "598968627719",
+  appId: "1:598968627719:web:06f9c72d860072f07870a2"
+};
+
+let db = null;
+try {
+  firebase.initializeApp(FB_CONFIG);
+  db = firebase.database();
+} catch(e) {
+  console.warn('Firebase não disponível:', e);
+}
+
 const QS=[
   {room:"Sala 1 — A Câmara do Rei",scene:"Cena I · págs. 130–135",clue:"P",
    q:"No início da Cena I, o Rei acorda agitado. O que o perturbou durante a noite?",
@@ -460,7 +480,7 @@ function pickTurma(t){
 function startGame(){
   const n=document.getElementById('nome-input').value.trim();
   if(!n){document.getElementById('nome-err').textContent='Escreve o teu nome para continuar.';return;}
-  st={t:st.t,q:0,pts:0,ltrs:[],ans:false,nome:n};
+  st={t:st.t,q:0,pts:0,ltrs:[],ans:false,nome:n,startTime:Date.now()};
   const pill=document.getElementById('g-pill');
   pill.textContent='7.º '+st.t;
   pill.className='tpill p'+st.t;
@@ -587,6 +607,19 @@ function goWin(){
   const lok=st.ltrs.filter(l=>l!=='_').length;
   // Save to allEntries
   allEntries.push({nome:st.nome,t:st.t,pts:st.pts,lok});
+
+  // Send to Firebase
+  const tempoSegundos = Math.floor((Date.now() - (st.startTime || Date.now())) / 1000);
+  if (db) {
+    db.ref('rankings').push({
+      nome: st.nome,
+      t: st.t,
+      pts: st.pts,
+      lok,
+      tempo: tempoSegundos,
+      ts: Date.now()
+    }).catch(err => console.warn('Erro ao guardar resultado:', err));
+  }
   updateSidebar(true);
 
   show('s-win');

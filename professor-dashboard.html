@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Professor · Escape Room Perafita</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1A0F00;
+  --gold: #C8960C;
+  --gold-l: #E8B930;
+  --gold-d: #7A5A06;
+  --vellum: #F7EDD8;
+  --crimson: #8B1A1A;
+  --cA: #C0392B;
+  --cB: #1565C0;
+  --cC: #2E7D32;
+  --cD: #E65100;
+  --bg: #0f0f0f;
+  --card: #1a1a1a;
+  --border: #2a2a2a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Crimson Text', serif;
+  background: var(--bg);
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #12090A, #1A0F00);
+  border-bottom: 2px solid var(--gold-d);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(14px, 2.5vw, 22px);
+  color: var(--gold-l);
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+.header-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: rgba(200,150,12,.4);
+  letter-spacing: .12em;
+  margin-top: 3px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+.status-dot.live { background: #4CAF50; animation: pulse .8s infinite; }
+.status-dot.off  { background: #666; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.status-txt {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: rgba(200,150,12,.45);
+  letter-spacing: .08em;
+}
+.btn-export {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--gold-d), var(--gold));
+  color: var(--ink);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-export:hover { opacity: .85; }
+
+/* STATS BAR */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 20px 32px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+.stat-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  text-align: center;
+}
+.stat-val {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 700;
+  color: var(--gold-l);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(200,150,12,.4);
+  text-transform: uppercase;
+}
+
+/* TURMA FILTER */
+.filter-bar {
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.filter-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: rgba(200,150,12,.4);
+  letter-spacing: .1em;
+  margin-right: 4px;
+}
+.filt-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  background: transparent;
+  cursor: pointer;
+  transition: all .2s;
+  color: #888;
+  border-color: #333;
+}
+.filt-btn:hover { opacity: .8; }
+.filt-btn.active { color: #fff; }
+.filt-btn.fA { border-color: var(--cA); }
+.filt-btn.fA.active { background: var(--cA); color: #fff; border-color: var(--cA); }
+.filt-btn.fB { border-color: var(--cB); }
+.filt-btn.fB.active { background: var(--cB); color: #fff; border-color: var(--cB); }
+.filt-btn.fC { border-color: var(--cC); }
+.filt-btn.fC.active { background: var(--cC); color: #fff; border-color: var(--cC); }
+.filt-btn.fD { border-color: var(--cD); }
+.filt-btn.fD.active { background: var(--cD); color: #fff; border-color: var(--cD); }
+.filt-btn.fAll { border-color: var(--gold-d); color: var(--gold); }
+.filt-btn.fAll.active { background: var(--gold-d); color: var(--ink); }
+
+.search-inp {
+  margin-left: auto;
+  padding: 7px 14px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: #ccc;
+  outline: none;
+  width: 200px;
+  transition: border-color .2s;
+}
+.search-inp:focus { border-color: var(--gold-d); }
+.search-inp::placeholder { color: #444; }
+
+/* TABLE */
+.table-wrap {
+  padding: 24px 32px;
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+thead tr {
+  border-bottom: 2px solid var(--gold-d);
+}
+thead th {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: rgba(200,150,12,.5);
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+thead th:hover { color: var(--gold); }
+thead th .sort-icon { margin-left: 4px; opacity: .4; }
+thead th.active-sort .sort-icon { opacity: 1; color: var(--gold-l); }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+tbody tr:hover { background: rgba(200,150,12,.04); }
+tbody td {
+  padding: 11px 14px;
+  vertical-align: middle;
+}
+.td-pos {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 40px;
+}
+.td-pos.r1 { color: #FFD700; }
+.td-pos.r2 { color: #C0C0C0; }
+.td-pos.r3 { color: #CD7F32; }
+.td-pos.rn { color: #444; }
+.td-nome { font-weight: 600; color: #e0e0e0; min-width: 160px; }
+.td-turma {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1.5px solid;
+  display: inline-block;
+  white-space: nowrap;
+}
+.tA { border-color: var(--cA); color: var(--cA); }
+.tB { border-color: var(--cB); color: var(--cB); }
+.tC { border-color: var(--cC); color: var(--cC); }
+.tD { border-color: var(--cD); color: var(--cD); }
+.td-pts {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
+  min-width: 80px;
+}
+.td-lok { color: #888; min-width: 90px; }
+.td-lok span { color: var(--gold-l); font-weight: 600; }
+.td-pct { min-width: 140px; }
+.pct-bar {
+  height: 6px;
+  background: #2a2a2a;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+.pct-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold-d), var(--gold-l));
+}
+.pct-txt {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: rgba(200,150,12,.5);
+}
+.td-when {
+  font-size: 13px;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* TURMA SUMMARY */
+.turma-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 0 32px 24px;
+}
+.ts-card {
+  border: 1.5px solid;
+  border-radius: 6px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,.02);
+}
+.ts-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: .1em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.ts-row { display:flex; justify-content:space-between; margin-bottom:4px; font-size:14px; }
+.ts-key { color: #666; }
+.ts-val { font-weight: 600; color: #ccc; }
+
+/* EMPTY */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #444;
+  font-style: italic;
+  font-size: 17px;
+}
+.empty-state span { display:block; font-size:36px; margin-bottom:12px; }
+
+/* SECTION TITLE */
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: .15em;
+  color: rgba(200,150,12,.4);
+  text-transform: uppercase;
+  padding: 20px 32px 8px;
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: rgba(200,150,12,.4);
+  letter-spacing: .1em;
+  animation: fadeLoad 1s ease-in-out infinite alternate;
+}
+@keyframes fadeLoad { from{opacity:.3} to{opacity:.8} }
+
+@media(max-width:600px) {
+  .stats-bar, .filter-bar, .table-wrap, .turma-summary, .section-title { padding-left:16px; padding-right:16px; }
+  .header { padding: 16px; }
+  .search-inp { width: 100%; margin-left: 0; }
+  .td-pct, .td-when { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-title">👑 Painel do Professor</div>
+    <div class="header-sub">Escape Room · Leandro, Rei da Helíria · EB 2,3 de Perafita</div>
+  </div>
+  <div class="header-right">
+    <div class="status-txt"><span class="status-dot off" id="status-dot"></span><span id="status-txt">A ligar…</span></div>
+    <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+  <button class="btn-export" style="background:linear-gradient(135deg,#1B4332,#2E7D32)" onclick="openProjection()">📽 Modo Projeção</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card"><div class="stat-val" id="st-total">—</div><div class="stat-lbl">Total de alunos</div></div>
+  <div class="stat-card"><div class="stat-val" id="st-media">—</div><div class="stat-lbl">Média de pontos</div></div>
+  <div class="stat-card"><div class="stat-val" id="st-max">—</div><div class="stat-lbl">Pontuação máx.</div></div>
+  <div class="stat-card"><div class="stat-val" id="st-perfect">—</div><div class="stat-lbl">Pontuação 100%</div></div>
+  <div class="stat-card"><div class="stat-val" id="st-lok">—</div><div class="stat-lbl">Média letras</div></div>
+</div>
+
+<!-- FILTER -->
+<div class="filter-bar">
+  <span class="filter-lbl">TURMA:</span>
+  <button class="filt-btn fAll active" onclick="setFilter('all',this)">Todas</button>
+  <button class="filt-btn fA" onclick="setFilter('A',this)">7.º A</button>
+  <button class="filt-btn fB" onclick="setFilter('B',this)">7.º B</button>
+  <button class="filt-btn fC" onclick="setFilter('C',this)">7.º C</button>
+  <button class="filt-btn fD" onclick="setFilter('D',this)">7.º D</button>
+  <input type="text" class="search-inp" id="search-inp" placeholder="🔍  Pesquisar aluno…" oninput="render()">
+</div>
+
+<!-- TABLE -->
+<div id="main-content">
+  <div class="loading">⏳ A carregar resultados…</div>
+</div>
+
+<!-- TURMA SUMMARY -->
+<div class="section-title">Resumo por Turma</div>
+<div class="turma-summary" id="turma-summary"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const FB_CONFIG = {
+  apiKey: "AIzaSyCbZjtIR7kn1lBGgWtUtQRYK8DXxOy1uZY",
+  authDomain: "escapeperafita.firebaseapp.com",
+  databaseURL: "https://escapeperafita-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "escapeperafita",
+  storageBucket: "escapeperafita.firebasestorage.app",
+  messagingSenderId: "598968627719",
+  appId: "1:598968627719:web:06f9c72d860072f07870a2"
+};
+
+const MAX_PTS = 100;
+const TOTAL_Q = 10;
+const MEDALS  = ['🥇','🥈','🥉'];
+
+let allData = [];
+let activeFilter = 'all';
+let sortCol = 'pts';
+let sortAsc = false;
+
+/* ── FIREBASE ── */
+try {
+  firebase.initializeApp(FB_CONFIG);
+  const db = firebase.database();
+
+  document.getElementById('status-dot').className = 'status-dot live';
+  document.getElementById('status-txt').textContent = 'Em direto';
+
+  db.ref('rankings').on('value', snap => {
+    allData = [];
+    snap.forEach(child => allData.push(child.val()));
+    render();
+  });
+} catch(e) {
+  document.getElementById('status-dot').className = 'status-dot off';
+  document.getElementById('status-txt').textContent = 'Sem ligação';
+  document.getElementById('main-content').innerHTML =
+    '<div class="empty-state"><span>⚠️</span>Não foi possível ligar ao Firebase.<br>Verifica as credenciais no código.</div>';
+}
+
+/* ── FILTER & SORT ── */
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setSort(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = false; }
+  render();
+}
+
+/* ── RENDER ── */
+function render() {
+  const q = document.getElementById('search-inp').value.trim().toLowerCase();
+  let data = [...allData];
+
+  // filter
+  if (activeFilter !== 'all') data = data.filter(e => e.t === activeFilter);
+  if (q) data = data.filter(e => (e.nome||'').toLowerCase().includes(q));
+
+  // sort
+  data.sort((a,b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (sortCol === 'nome') { va = va||''; vb = vb||''; return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va); }
+    if (sortCol === 'ts')   { va = va||0;  vb = vb||0; }
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  updateStats(data);
+  renderTable(data);
+  renderTurmaSummary();
+}
+
+/* ── STATS ── */
+function updateStats(data) {
+  const n = data.length;
+  document.getElementById('st-total').textContent = n;
+  if (!n) {
+    ['st-media','st-max','st-perfect','st-lok'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const avg = Math.round(data.reduce((s,e) => s+(e.pts||0), 0) / n);
+  const mx  = Math.max(...data.map(e => e.pts||0));
+  const pf  = data.filter(e => e.pts >= MAX_PTS).length;
+  const lok = (data.reduce((s,e) => s+(e.lok||0), 0) / n).toFixed(1);
+  document.getElementById('st-media').textContent = avg;
+  document.getElementById('st-max').textContent = mx;
+  document.getElementById('st-perfect').textContent = pf;
+  document.getElementById('st-lok').textContent = lok;
+}
+
+/* ── TABLE ── */
+function renderTable(data) {
+  const wrap = document.getElementById('main-content');
+  if (!data.length) {
+    wrap.innerHTML = '<div class="empty-state"><span>📭</span>Nenhum resultado encontrado.</div>';
+    return;
+  }
+
+  const colHead = (col, lbl) => {
+    const active = sortCol === col ? 'active-sort' : '';
+    const icon = sortCol === col ? (sortAsc ? '↑' : '↓') : '↕';
+    return `<th class="${active}" onclick="setSort('${col}')">${lbl} <span class="sort-icon">${icon}</span></th>`;
+  };
+
+  // rank globally by pts for medal
+  const ranked = [...allData].sort((a,b) => (b.pts||0)-(a.pts||0)||(b.lok||0)-(a.lok||0));
+
+  let rows = data.map(e => {
+    const ri = ranked.findIndex(x => x.nome===e.nome && x.pts===e.pts && x.t===e.t);
+    const posClass = ri===0?'r1':ri===1?'r2':ri===2?'r3':'rn';
+    const posTxt   = ri<3 ? MEDALS[ri] : (ri+1);
+    const pct = Math.round(((e.pts||0)/MAX_PTS)*100);
+    const pctBar = `<div class="pct-bar"><div class="pct-fill" style="width:${pct}%"></div></div><div class="pct-txt">${pct}%</div>`;
+    const when = e.ts ? fmtDate(e.ts) : '—';
+    return `<tr>
+      <td class="td-pos ${posClass}">${posTxt}</td>
+      <td class="td-nome">${esc(e.nome||'?')}</td>
+      <td><span class="td-turma t${e.t||'?'}">7.º ${e.t||'?'}</span></td>
+      <td class="td-pts">${e.pts||0}<span style="font-size:11px;color:rgba(200,150,12,.4);font-family:'Cinzel',serif"> / ${MAX_PTS}</span></td>
+      <td class="td-lok"><span>${e.lok||0}</span> / ${TOTAL_Q}</td>
+      <td class="td-pct">${pctBar}</td>
+      <td class="td-when">${when}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          ${colHead('pts','Pos')}
+          ${colHead('nome','Nome')}
+          <th>Turma</th>
+          ${colHead('pts','Pontos')}
+          ${colHead('lok','Letras')}
+          <th>Progresso</th>
+          ${colHead('ts','Data/Hora')}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* ── TURMA SUMMARY ── */
+function renderTurmaSummary() {
+  const wrap = document.getElementById('turma-summary');
+  const colors = { A: 'var(--cA)', B: 'var(--cB)', C: 'var(--cC)', D: 'var(--cD)' };
+  wrap.innerHTML = ['A','B','C','D'].map(t => {
+    const td = allData.filter(e => e.t === t);
+    const n  = td.length;
+    if (!n) return `
+      <div class="ts-card t${t}" style="border-color:${colors[t]}20">
+        <div class="ts-lbl" style="color:${colors[t]}">7.º ${t}</div>
+        <div class="ts-row"><span class="ts-key">Alunos</span><span class="ts-val">0</span></div>
+        <div style="font-size:13px;color:#333;font-style:italic">Sem resultados</div>
+      </div>`;
+    const avg = Math.round(td.reduce((s,e)=>s+(e.pts||0),0)/n);
+    const mx  = Math.max(...td.map(e=>e.pts||0));
+    const pf  = td.filter(e=>e.pts>=MAX_PTS).length;
+    const best = td.sort((a,b)=>(b.pts||0)-(a.pts||0))[0];
+    return `
+      <div class="ts-card t${t}" style="border-color:${colors[t]}40">
+        <div class="ts-lbl" style="color:${colors[t]}">7.º ${t}</div>
+        <div class="ts-row"><span class="ts-key">Alunos</span><span class="ts-val">${n}</span></div>
+        <div class="ts-row"><span class="ts-key">Média</span><span class="ts-val">${avg} pts</span></div>
+        <div class="ts-row"><span class="ts-key">Máximo</span><span class="ts-val">${mx} pts</span></div>
+        <div class="ts-row"><span class="ts-key">100%</span><span class="ts-val">${pf} aluno${pf!==1?'s':''}</span></div>
+        <div class="ts-row"><span class="ts-key">Melhor</span><span class="ts-val" style="font-size:13px">${esc(best.nome||'?')}</span></div>
+      </div>`;
+  }).join('');
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  if (!allData.length) { alert('Ainda não há resultados para exportar.'); return; }
+  const hdr = 'Posição,Nome,Turma,Pontos,Letras,Data';
+  const sorted = [...allData].sort((a,b)=>(b.pts||0)-(a.pts||0));
+  const rows = sorted.map((e,i) =>
+    [i+1, `"${(e.nome||'').replace(/"/g,'""')}"`, '7.º '+(e.t||'?'), e.pts||0, e.lok||0, e.ts?fmtDate(e.ts):'—'].join(',')
+  );
+  const blob = new Blob([[hdr,...rows].join('\n')], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'resultados_escape_perafita.csv';
+  a.click();
+}
+
+/* ── HELPERS ── */
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('pt-PT') + ' ' + d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+}
+/* ── PROJECTION MODE ── */
+function openProjection() {
+  const win = window.open('', '_blank', 'fullscreen=yes');
+  const sorted = [...allData].sort((a,b)=>(b.pts||0)-(a.pts||0)||(b.lok||0)-(a.lok||0));
+  const CMAP = {A:'#C0392B',B:'#1565C0',C:'#2E7D32',D:'#E65100'};
+  const MEDALS = ['🥇','🥈','🥉'];
+  const top10 = sorted.slice(0,10);
+
+  const rows = top10.map((e,i) => {
+    const pct = Math.round(((e.pts||0)/MAX_PTS)*100);
+    const medal = i < 3 ? MEDALS[i] : (i+1);
+    const col = CMAP[e.t] || '#888';
+    return `<tr class="proj-row" style="animation-delay:${i*0.08}s">
+      <td class="p-pos ${i<3?'p-medal':''}">${medal}</td>
+      <td class="p-nome">${esc(e.nome||'?')}</td>
+      <td><span class="p-turma" style="border-color:${col};color:${col}">7.º ${e.t||'?'}</span></td>
+      <td class="p-pts">${e.pts||0}<span class="p-max"> / ${MAX_PTS}</span></td>
+      <td class="p-bar-cell">
+        <div class="p-bar-bg">
+          <div class="p-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${col}99,${col})"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const turmaStats = ['A','B','C','D'].map(t => {
+    const td = allData.filter(e=>e.t===t);
+    const avg = td.length ? Math.round(td.reduce((s,e)=>s+(e.pts||0),0)/td.length) : 0;
+    const col = CMAP[t];
+    return `<div class="p-ts" style="border-color:${col}60">
+      <div class="p-ts-lbl" style="color:${col}">7.º ${t}</div>
+      <div class="p-ts-n">${td.length} <span>alunos</span></div>
+      <div class="p-ts-avg" style="color:${col}">${avg}<span style="font-size:14px;opacity:.6"> pts média</span></div>
+    </div>`;
+  }).join('');
+
+  const total = allData.length;
+  const perfect = allData.filter(e=>e.pts>=MAX_PTS).length;
+  const now = new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+
+  win.document.write(`<!DOCTYPE html><html lang="pt"><head>
+  <meta charset="UTF-8">
+  <title>Projeção · Escape Room Perafita</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      background: radial-gradient(ellipse at 50% 0%, #1f1000 0%, #0a0600 100%);
+      color:#e0d0a0;
+      font-family:'Cinzel',serif;
+      height:100vh; overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+    /* HEADER */
+    .p-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:18px 48px 14px;
+      border-bottom:2px solid rgba(200,150,12,.2);
+      background:linear-gradient(180deg,rgba(200,150,12,.07),transparent);
+      flex-shrink:0;
+    }
+    .p-title{
+      font-family:'Cinzel Decorative',serif;
+      font-size:clamp(16px,2.2vw,26px);
+      color:#E8B930;
+      text-shadow:0 0 30px rgba(200,150,12,.4);
+      letter-spacing:.04em;
+    }
+    .p-sub{font-size:11px;color:rgba(200,150,12,.35);letter-spacing:.14em;margin-top:4px;}
+    .p-clock{
+      font-size:clamp(18px,2.5vw,30px);
+      color:rgba(200,150,12,.5);
+      letter-spacing:.06em;
+      font-weight:700;
+    }
+
+    /* QUICK STATS */
+    .p-quick{
+      display:flex; gap:0; justify-content:center;
+      border-bottom:1px solid rgba(200,150,12,.1);
+      flex-shrink:0;
+    }
+    .p-qs{
+      flex:1; text-align:center;
+      padding:10px 0;
+      border-right:1px solid rgba(200,150,12,.1);
+    }
+    .p-qs:last-child{border-right:none;}
+    .p-qs-val{font-size:clamp(18px,2.5vw,30px);font-weight:700;color:#E8B930;line-height:1;}
+    .p-qs-lbl{font-size:9px;letter-spacing:.14em;color:rgba(200,150,12,.35);margin-top:3px;text-transform:uppercase;}
+
+    /* TABLE */
+    .p-body{flex:1;display:flex;flex-direction:column;padding:16px 48px 12px;overflow:hidden;}
+    .p-heading{
+      font-size:10px;letter-spacing:.18em;color:rgba(200,150,12,.35);
+      text-transform:uppercase;margin-bottom:10px;
+    }
+    .p-table{width:100%;border-collapse:collapse;flex:1;}
+    .p-table thead th{
+      font-size:9px;letter-spacing:.14em;color:rgba(200,150,12,.3);
+      text-transform:uppercase;padding:0 16px 8px;text-align:left;
+    }
+    .proj-row{
+      border-bottom:1px solid rgba(200,150,12,.06);
+      animation:rowIn .5s ease both;
+    }
+    @keyframes rowIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+    .proj-row:hover{background:rgba(200,150,12,.04);}
+    .proj-row td{padding:8px 16px;vertical-align:middle;}
+    .p-pos{font-size:clamp(16px,2vw,22px);font-weight:700;color:rgba(200,150,12,.3);width:52px;}
+    .p-medal{color:#E8B930;}
+    .p-nome{font-family:'Cinzel',serif;font-size:clamp(14px,1.8vw,20px);font-weight:600;color:#F7EDD8;}
+    .p-turma{
+      font-family:'Cinzel',serif;font-size:11px;font-weight:700;
+      padding:3px 12px;border-radius:12px;border:1.5px solid;
+      display:inline-block;white-space:nowrap;
+    }
+    .p-pts{
+      font-family:'Cinzel',serif;
+      font-size:clamp(16px,2vw,22px);font-weight:700;color:#E8B930;
+      text-align:right;white-space:nowrap;width:120px;
+    }
+    .p-max{font-size:11px;opacity:.35;}
+    .p-bar-cell{width:200px;padding-left:12px;}
+    .p-bar-bg{height:6px;background:rgba(200,150,12,.1);border-radius:3px;overflow:hidden;}
+    .p-bar-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+
+    /* TURMA CARDS */
+    .p-turmas{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+      padding:12px 48px 16px;flex-shrink:0;
+      border-top:1px solid rgba(200,150,12,.1);
+    }
+    .p-ts{
+      background:rgba(255,255,255,.02);border:1.5px solid;border-radius:6px;
+      padding:10px 16px;display:flex;align-items:center;gap:12px;
+    }
+    .p-ts-lbl{font-size:clamp(18px,2.5vw,28px);font-weight:700;flex-shrink:0;}
+    .p-ts-n{font-size:12px;color:rgba(200,150,12,.35);flex:1;}
+    .p-ts-n span{font-size:10px;}
+    .p-ts-avg{font-family:'Cinzel Decorative',serif;font-size:clamp(14px,2vw,22px);font-weight:700;}
+
+    /* LIVE BADGE */
+    .live-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3);
+      border-radius:20px;padding:4px 12px;font-size:10px;
+      color:rgba(76,175,80,.8);letter-spacing:.1em;
+    }
+    .live-dot{width:6px;height:6px;border-radius:50%;background:#4CAF50;animation:pulse .8s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* SCROLL TICKER */
+    .ticker{
+      background:rgba(200,150,12,.05);border-top:1px solid rgba(200,150,12,.1);
+      padding:6px 0;overflow:hidden;flex-shrink:0;
+    }
+    .ticker-inner{
+      display:flex;gap:48px;white-space:nowrap;
+      animation:ticker linear 30s infinite;
+    }
+    @keyframes ticker{from{transform:translateX(100vw)}to{transform:translateX(-200%)}}
+    .ticker-item{font-size:12px;color:rgba(200,150,12,.4);letter-spacing:.06em;}
+    .ticker-item strong{color:rgba(200,150,12,.7);}
+  </style>
+  </head><body>
+
+  <div class="p-header">
+    <div>
+      <div class="p-title">👑 Escape Room · Leandro, Rei da Helíria</div>
+      <div class="p-sub">EB 2,3 de Perafita · 7.º Ano · Tabela de Honra</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div class="live-badge"><span class="live-dot"></span>EM DIRETO</div>
+      <div class="p-clock" id="proj-clock">${now}</div>
+    </div>
+  </div>
+
+  <div class="p-quick">
+    <div class="p-qs"><div class="p-qs-val">${total}</div><div class="p-qs-lbl">Alunos</div></div>
+    <div class="p-qs"><div class="p-qs-val">${total?Math.round(allData.reduce((s,e)=>s+(e.pts||0),0)/total):0}</div><div class="p-qs-lbl">Média pts</div></div>
+    <div class="p-qs"><div class="p-qs-val">${total?Math.max(...allData.map(e=>e.pts||0)):0}</div><div class="p-qs-lbl">Máximo</div></div>
+    <div class="p-qs"><div class="p-qs-val">${perfect}</div><div class="p-qs-lbl">Pontuação 100%</div></div>
+  </div>
+
+  <div class="p-body">
+    <div class="p-heading">✦ Top 10 · Classificação Geral ✦</div>
+    <table class="p-table">
+      <thead><tr>
+        <th>#</th><th>Nome</th><th>Turma</th><th style="text-align:right">Pontos</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <div class="p-turmas">${turmaStats}</div>
+
+  <div class="ticker">
+    <div class="ticker-inner" id="ticker">
+      ${top10.map(e=>`<span class="ticker-item">⚔️ <strong>${esc(e.nome||'?')}</strong> · 7.º ${e.t||'?'} · ${e.pts||0} pts</span>`).join('')}
+      ${top10.map(e=>`<span class="ticker-item">⚔️ <strong>${esc(e.nome||'?')}</strong> · 7.º ${e.t||'?'} · ${e.pts||0} pts</span>`).join('')}
+    </div>
+  </div>
+
+  <script>
+    // Live clock
+    setInterval(()=>{
+      const el=document.getElementById('proj-clock');
+      if(el) el.textContent=new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+    },1000);
+  <\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
