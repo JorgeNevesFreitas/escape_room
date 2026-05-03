@@ -419,7 +419,7 @@ try {
 
   db.ref('rankings').on('value', snap => {
     allData = [];
-    snap.forEach(child => allData.push(child.val()));
+    snap.forEach(child => { allData.push(child.val()); });
     render();
   });
 } catch(e) {
