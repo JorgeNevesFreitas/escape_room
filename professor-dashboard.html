@@ -425,6 +425,32 @@ tbody td {
   transition: border-color .2s, color .2s;
 }
 .modal-btn-cancel:hover { border-color: #666; color: #ccc; }
+.modal-scope-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(200,150,12,.5);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.modal-turma-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.modal-turma-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  background: transparent;
+  cursor: pointer;
+  transition: all .2s;
+}
 </style>
 </head>
 <body>
@@ -493,11 +519,12 @@ let allData = [];
 let activeFilter = 'all';
 let sortCol = 'pts';
 let sortAsc = false;
+let db = null;
 
 /* ── FIREBASE ── */
 try {
   firebase.initializeApp(FB_CONFIG);
-  const db = firebase.database();
+  db = firebase.database();
 
   document.getElementById('status-dot').className = 'status-dot live';
   document.getElementById('status-txt').textContent = 'Em direto';
@@ -889,15 +916,37 @@ function esc(s) {
 }
 
 /* ── CLEAR MODAL ── */
+const CLEAR_COLORS = { all: 'var(--gold)', A: 'var(--cA)', B: 'var(--cB)', C: 'var(--cC)', D: 'var(--cD)' };
+let clearTarget = 'all';
+
 function openClearModal() {
+  clearTarget = 'all';
   document.getElementById('clear-pw').value = '';
   document.getElementById('clear-err').textContent = '';
+  selectClearTurma('all');
   document.getElementById('clear-modal').classList.add('open');
   document.getElementById('clear-pw').focus();
 }
 
 function closeClearModal() {
   document.getElementById('clear-modal').classList.remove('open');
+}
+
+function selectClearTurma(t) {
+  clearTarget = t;
+  document.querySelectorAll('.modal-turma-btn').forEach(btn => {
+    const bt = btn.dataset.turma;
+    const col = CLEAR_COLORS[bt];
+    if (bt === t) {
+      btn.style.background = col;
+      btn.style.borderColor = col;
+      btn.style.color = bt === 'all' ? '#1A0F00' : '#fff';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.borderColor = col;
+      btn.style.color = col;
+    }
+  });
 }
 
 function confirmClear() {
@@ -908,8 +957,18 @@ function confirmClear() {
     document.getElementById('clear-pw').focus();
     return;
   }
-  db.ref('rankings').remove()
-    .then(() => closeClearModal())
+  let op;
+  if (clearTarget === 'all') {
+    op = db.ref('rankings').remove();
+  } else {
+    op = db.ref('rankings').orderByChild('t').equalTo(clearTarget).once('value')
+      .then(snap => {
+        const updates = {};
+        snap.forEach(child => { updates[child.key] = null; });
+        return db.ref('rankings').update(updates);
+      });
+  }
+  op.then(() => closeClearModal())
     .catch(err => {
       document.getElementById('clear-err').textContent = 'Erro ao limpar: ' + err.message;
     });
@@ -919,8 +978,16 @@ function confirmClear() {
 <!-- CLEAR MODAL -->
 <div class="modal-overlay" id="clear-modal" onclick="if(event.target===this)closeClearModal()">
   <div class="modal-box">
-    <div class="modal-title">⚠️ Limpar Todos os Dados</div>
-    <div class="modal-warn">Esta ação é irreversível. Todos os resultados serão eliminados permanentemente.</div>
+    <div class="modal-title">⚠️ Limpar Dados</div>
+    <div class="modal-warn">Esta ação é irreversível. Os resultados selecionados serão eliminados permanentemente.</div>
+    <div class="modal-scope-lbl">O que apagar?</div>
+    <div class="modal-turma-opts">
+      <button class="modal-turma-btn" data-turma="all" onclick="selectClearTurma('all')">Todas as turmas</button>
+      <button class="modal-turma-btn" data-turma="A" onclick="selectClearTurma('A')">7.º A</button>
+      <button class="modal-turma-btn" data-turma="B" onclick="selectClearTurma('B')">7.º B</button>
+      <button class="modal-turma-btn" data-turma="C" onclick="selectClearTurma('C')">7.º C</button>
+      <button class="modal-turma-btn" data-turma="D" onclick="selectClearTurma('D')">7.º D</button>
+    </div>
     <input class="modal-inp" type="password" id="clear-pw" placeholder="Palavra-passe"
       onkeydown="if(event.key==='Enter')confirmClear()">
     <div class="modal-err" id="clear-err"></div>
